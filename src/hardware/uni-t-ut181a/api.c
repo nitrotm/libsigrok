@@ -409,13 +409,22 @@ static int config_set(uint32_t key, GVariant *data,
 		ret = ut181a_send_cmd_setmode(sdi->conn, mode);
 		if (ret < 0)
 			return ret;
+		ret = ut181a_configure_waitfor(devc, TRUE, 0, 0,
+			FALSE, FALSE, FALSE, FALSE);
+		if (ret < 0)
+			return ret;
 		ret = ut181a_waitfor_response(sdi, 100);
 		if (ret < 0)
 			return ret;
 		if (devc->info.rsp_head.rsp_type != RSP_TYPE_REPLY_CODE)
 			return SR_ERR_DATA;
-		if (!devc->info.reply_code.ok)
+		if (!devc->info.reply_code.ok) {
+			sr_dbg("Meter NAKed mode 0x%04x (reply code 0x%04x). "
+				"Mode switches may be restricted to the "
+				"function currently selected by the rotary knob.",
+				mode, devc->info.reply_code.code);
 			return SR_ERR_DATA;
+		}
 		break;
 	case SR_CONF_RANGE:
 		range = g_variant_get_string(data, NULL);
