@@ -409,7 +409,7 @@ static int config_set(uint32_t key, GVariant *data,
 		ret = ut181a_send_cmd_setmode(sdi->conn, mode);
 		if (ret < 0)
 			return ret;
-		ret = ut181a_waitfor_response(sdi->conn, 100);
+		ret = ut181a_waitfor_response(sdi, 100);
 		if (ret < 0)
 			return ret;
 		if (devc->info.rsp_head.rsp_type != RSP_TYPE_REPLY_CODE)
