@@ -138,12 +138,12 @@ static int ut181a_query_initial_state(struct sr_dev_inst *sdi, int timeout_ms)
 	deadline += timeout_ms * 1000;
 	while (1) {
 		ret = ut181a_waitfor_response(sdi, 100);
-		if (ret < 0)
-			return ret;
-		if (devc->info.meas_head.mode)
+		if (ret == SR_OK && devc->info.meas_head.mode)
 			break;
-		if (g_get_monotonic_time() >= deadline)
+		if (g_get_monotonic_time() >= deadline) {
+			(void)ut181a_send_cmd_monitor(serial, FALSE);
 			return SR_ERR_DATA;
+		}
 	}
 	(void)ut181a_send_cmd_monitor(serial, FALSE);
 	ret = ut181a_configure_waitfor(devc, TRUE, 0, 0,
